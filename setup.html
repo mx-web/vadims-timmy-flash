@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup</title>
+</head>
+<body>
+
+    <input type="text" name="adre" id="adre" placeholder="WLED IP" value="4.3.2.1"><button id="load">LOAD</button>
+   
+    <button id="button">Upload Config</button>
+
+
+    <script>
+        let button = document.getElementById('button');
+        let load = document.getElementById('load');
+        let address;
+        let configJson;
+        let config;
+
+        load.addEventListener('click', function() {
+            address =  document.getElementById('adre').value;
+            fetch('http://'+address+'/cfg.json')
+                .then((response) => response.json())
+                .then((response) => {
+                    configJson = response;
+                    config = setParams(configJson)
+             });
+        });
+
+        button.addEventListener('click', function() {
+            let presets = {"0":{},"1":{"n":"ON","on":true,"bri":255,"transition":7,"mainseg":0,"seg":[{"id":0,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":118,"sx":170,"ix":0,"pal":0,"sel":true,"rev":false,"mi":false},{"id":1,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":118,"sx":170,"ix":5,"pal":0,"sel":true,"rev":false,"mi":false},{"id":2,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":118,"sx":170,"ix":10,"pal":0,"sel":true,"rev":false,"mi":false},{"id":3,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":118,"sx":170,"ix":15,"pal":0,"sel":true,"rev":false,"mi":false}]}   ,"2":{"n":"OFF","on":true,"bri":255,"transition":7,"mainseg":0,"seg":[{"id":0,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":119,"sx":170,"ix":0,"pal":0,"sel":true,"rev":false,"mi":false},{"id":1,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":119,"sx":170,"ix":5,"pal":0,"sel":true,"rev":false,"mi":false},{"id":2,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":119,"sx":170,"ix":10,"pal":0,"sel":true,"rev":false,"mi":false},{"id":3,"grp":1,"spc":0,"of":0,"on":true,"frz":false,"bri":255,"cct":127,"col":[[255,0,0],[0,0,0],[0,0,0]],"fx":119,"sx":170,"ix":15,"pal":0,"sel":true,"rev":false,"mi":false}]},"3":{"win":"win&P1=1&P2=2PL=~","n":"TOGGLE"}}
+            let presetFile = createFile(presets, "presets.json");
+            uploadFile(presetFile, "/presets.json");
+            update(config);
+        });
+
+        function setParams(json) {
+            json.hw.led = {"total":240,"maxpwr":850,"ledma":0,"cct":false,"cr":false,"cb":0,"fps":42,"rgbwm":3,"ins":[{"start":0,"len":60,"pin":[16],"order":0,"rev":false,"skip":0,"type":22,"ref":false},{"start":60,"len":60,"pin":[17],"order":0,"rev":false,"skip":0,"type":22,"ref":false},{"start":120,"len":60,"pin":[18],"order":0,"rev":false,"skip":0,"type":22,"ref":false},{"start":180,"len":60,"pin":[19],"order":0,"rev":false,"skip":0,"type":22,"ref":false}]}
+            json.hw.btn = {"max":4,"ins":[{"type":2,"pin":[0],"macros":[0,0,0]},{"type":4,"pin":[15],"macros":[3,3,0]},{"type":0,"pin":[-1],"macros":[0,0,0]},{"type":0,"pin":[-1],"macros":[0,0,0]}],"tt":32,"mqtt":false}
+            json.def.ps = 1;
+            json.def.bri = 255;
+            json.light.aseg = true;
+            return json;
+        }
+
+        function createFile(json, fileName) {
+            const configFile = new File([JSON.stringify(json)], fileName, {
+                type: "application/json",
+            });
+            return configFile;
+        }
+
+        function update(json) {
+            const configFile = new File([JSON.stringify(json)], "cfg.json", {
+                type: "application/json",
+            });
+            setTimeout(() => uploadFile(configFile, "/cfg.json"), 1000)
+            
+        }
+
+        function uploadFile(file, name) {
+			var req = new XMLHttpRequest();
+			req.open("POST", 'http://'+address+'/upload');
+			var formData = new FormData();
+			formData.append("data", file, name);
+			req.send(formData);
+	    }
+    </script>
+</body>
+</html>

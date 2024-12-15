@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+
+        setup.html
+    <input type="file" name="setup" placeholder="setup.html" id="setup">
+
+    <br>
+    app.css
+    <input type="file" name="css" placeholder="app.css" id="css">
+    <br>
+    app.js
+    <input type="file" name="js" placeholder="app.js" id="js">
+    <button onclick="upload()">Upload</button>
+
+
+    
+
+
+    <script>
+        function upload() {
+            let html = document.getElementById("setup");
+            let css = document.getElementById("css");
+            let js = document.getElementById("js");
+
+            uploadFile(html.files[0], `/${html.files[0].name}`);
+            uploadFile(css.files[0], `/${css.files[0].name}`);
+            uploadFile(js.files[0], `/${js.files[0].name}`);
+        }
+
+        function uploadFile(file, name) {
+			var req = new XMLHttpRequest();
+			req.open("POST", 'http://4.3.2.1/upload');
+			var formData = new FormData();
+			formData.append("data", file, name);
+			req.send(formData);
+	    }
+    </script>
+
+</body>
+</html>
